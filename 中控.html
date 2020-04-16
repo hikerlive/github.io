@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta content="webkit" name="renderer">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>中控</title>
+    <link href="images/butel.ico" rel="icon">
+    <script src="./dist/MeetingDeviceSDK_v1.0.9.js" charset="utf-8"></script>
+
+    <!--<link rel="stylesheet" href="css/bootstrap.min.css">-->
+    <!--<link rel="stylesheet" href="css/base.css">-->
+    <style>
+        .resultBox {
+            position: absolute;
+            right: 20px;
+            bottom: 50px;
+            border: 1px solid #ddd;
+            top: 44px;
+            left: 680px;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .resultBox2 {
+            position: absolute;
+            bottom: 34px;
+            width: 100%;
+            height: 450px;
+            border: 1px solid #ddd;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        hr {
+            display: block;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+        }
+
+        input {
+            border: 1px solid blue;
+            min-width: 100px;
+            margin: 0 5px;
+        }
+
+    </style>
+</head>
+<body>
+<div style="overflow:hidden; width:0px; height:0px;">
+    <div id="flashContent"></div>
+</div>
+
+
+<div></div>
+
+
+<script>
+    function _dom(id) {
+        return document.getElementById(id);
+    }
+
+    function _val(id) {
+        return _dom(id).value;
+    }
+
+</script>
+
+
+<div style="width: 600px; padding: 20px 30px;border: 1px solid #ddd;float: left">
+    <h1>MeetingDeviceSDK（控制设备1）</h1>
+    <h3>SDK初始化</h3>
+    会议主机视训号（八位数字）<input id="init_meetingAccountId" type="text" class="form-control" style="margin-bottom: 10px;"
+                        placeholder="输入MeetingAccountid" value=""> <br/>
+    验证码（四位数字）<input id="init_verifyCode" type="text" class="form-control" style="margin-bottom: 10px;"
+                    placeholder="输入verifyCode" value=""><br/>
+    <button id="init">init</button>
+    <hr/>
+
+    <h3>创建会议 createMeeting</h3>
+    成员列表(11111111,22222222)<input id="createMeeting_nubes" type="text" class="form-control" style="margin-bottom: 10px;"
+                                  placeholder="输入nubes" value=""><br/>
+    <button id="createMeeting">createMeeting</button>
+    <hr/>
+
+    <h3>创建预约会议 createOrderMeeting</h3>
+    成员列表(11111111,22222222)<input id="createOrderMeeting_nubes" type="text" class="form-control"
+                                  style="margin-bottom: 10px;" placeholder="输入nubes" value=""><br/>
+    会议标题<input id="createOrderMeeting_topic" type="text" class="form-control" style="margin-bottom: 10px;"
+               placeholder="输入topic" value=""><br/>
+    会议开始时间(与1970-1-1相差的秒数（UTC时区）1531336395)<input id="createOrderMeeting_startTime" type="text" class="form-control"
+                                                  style="margin-bottom: 10px;" placeholder="输入startTime" value=""><br/>
+    会议结束时间(与1970-1-1相差的秒数（UTC时区）1532336395)<input id="createOrderMeeting_endTime" type="text" class="form-control"
+                                                  style="margin-bottom: 10px;" placeholder="输入endTime" value=""><br/>
+    会议密码（六位数字,可不填）<input id="createOrderMeeting_meetingPWD" type="text" class="form-control"
+                         style="margin-bottom: 10px;" placeholder="输入meetingPWD" value=""><br/>
+    <button id="createOrderMeeting">createOrderMeeting</button>
+    <hr/>
+
+
+    <h3>退出当前会议</h3>
+    <button id="exitMeeting">exitMeeting</button>
+    <hr/>
+
+    <h3>加入会议</h3>
+    会议号（八位数字）<input type="text" id="joinMeeting_meetingNo" class="form-control" style="margin-bottom: 10px;"
+                    placeholder="输入meetingNo" value="70150097"><br/>
+    <button id="joinMeeting">joinMeeting</button>
+    <hr/>
+
+    <h3>会议主机丢失后重连</h3>
+    <button id="reconnect">reconnect</button>
+    <hr/>
+
+    <h3>摄像头/麦克风/扬声器打开关闭控制(摄像头和麦克风 在发言时控制才能有效) operateDeviceState</h3>
+    设备类型 取值如下：1：摄像头 2：麦克风 3：扬声器<input id="operateDeviceState_deviceType" type="text" class="form-control"
+                                      style="margin-bottom: 10px;" value=""><br/>
+    操作类型1：打开 2：关闭<input id="operateDeviceState_operateType" type="text" class="form-control"
+                        style="margin-bottom: 10px;" value=""><br/>
+    <button id="operateDeviceState">operateDeviceState</button>
+    <hr/>
+
+    <h3>开始/结束云端录制 startOrStopCloudRecord</h3>
+    操作类型1：开始 2：结束<input id="startOrStopCloudRecord_operateType" type="text" class="form-control"
+                        style="margin-bottom: 10px;" value=""><br/>
+    <button id="startOrStopCloudRecord">startOrStopCloudRecord</button>
+    <hr/>
+
+    <h3>	枚举信号源 getVideoSources </h3>
+    <button id="getVideoSources">枚举信号源</button>
+    <div id="videoSourcesShow"></div>
+    <hr/>
+
+    <h3>切换信号源 changeVideoSource  </h3>
+    信号源名称
+    <input id="sourceName" type="text" class="form-control"
+                        style="margin-bottom: 10px;" value=""><br/>
+    <button id="changeVideoSource">切换信号源</button>
+    <hr/>
+
+    <h3>开始推流 startPushStream </h3>
+    <button id="startPushStream">开始推流</button>
+    <hr/>
+
+    <h3>停止推流 stopPushStream </h3>
+    <button id="stopPushStream">停止推流</button>
+    <hr/>
+
+    <h3>SDK释放</h3>
+    <button id="release">release</button>
+    <hr/>
+
+    <!--<button class="form-control btn-primary" onclick="pStart()">start</button>-->
+    <script>
+        var meetingDevice = MeetingDevice.createInstance();
+
+        function eventCallBack(eventType) {
+            if (eventType == MeetingDevice.EVENT.LOST_MEETING_HOST) {
+                alert("*************回调 事件 会议主机丢失，需要重连*************");
+            }
+            if (eventType == MeetingDevice.EVENT.KICK_OUT_MEETING) {
+                alert("*************回调 事件 被请出会议*************");
+            }
+            if (eventType == MeetingDevice.EVENT.UNBIND_MEETING_HOST) {
+                alert("*************回调 事件 解除绑定，sdk释放*************");
+            }
+            if (eventType == MeetingDevice.EVENT.SERVER_ERROR) {
+                alert("*************回调 事件 服务端被抢占，sdk释放*************");
+            }
+
+        };
+
+        _dom("init").onclick = function () {
+            var meetingAccountId = _val("init_meetingAccountId");
+            var verifyCode = _val("init_verifyCode");
+            meetingDevice.init(meetingAccountId, function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice *************SDK调用**********初始化成功");
+                    alert("初始化成功");
+                } else {
+                    console.error("meetingDevice *************SDK调用**********初始化失败 code：" + resData.code + "  " + resData.des);
+                    alert("初始化失败code：" + resData.code + "  " + resData.des);
+                }
+
+            }, eventCallBack, verifyCode);
+
+        };
+        _dom("createMeeting").onclick = function () {
+            var nubes = _val("createMeeting_nubes");
+            nubes = nubes ? nubes.split(",") : "";
+            meetingDevice.createMeeting(nubes, function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice *************SDK调用**********创建会议成功,会议号：" + resData.data);
+                    alert("创建会议成功,会议号：" + JSON.stringify(resData.data));
+
+                } else {
+                    console.error("meetingDevice *************SDK调用**********创建会议失败 code：" + resData.code + "  " + resData.des);
+                    alert("创建会议失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+        _dom("createOrderMeeting").onclick = function () {
+            var nubes = _val("createOrderMeeting_nubes");
+            nubes = nubes ? nubes.split(",") : "";
+            var topic = _val("createOrderMeeting_topic");
+            var startTime = _val("createOrderMeeting_startTime");
+            var endTime = _val("createOrderMeeting_endTime");
+            var meetingPWD = _val("createOrderMeeting_meetingPWD");
+            meetingPWD = meetingPWD ? meetingPWD : null;
+
+            meetingDevice.createOrderMeeting(nubes, topic, startTime, endTime, function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice *************SDK调用**********创建会议成功,会议号：" + resData.data);
+                    alert("创建会议成功,会议号：" + resData.data);
+
+                } else {
+                    console.error("meetingDevice *************SDK调用**********创建会议失败 code：" + resData.code + "  " + resData.des);
+                    alert("创建会议失败code：" + resData.code + "  " + resData.des);
+
+                }
+            }, meetingPWD);
+        };
+
+
+        _dom("exitMeeting").onclick = function () {
+            meetingDevice.exitMeeting(function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice *************SDK调用**********退出会议成功");
+                    alert("退出会议成功");
+
+                } else {
+                    console.error("meetingDevice *************SDK调用**********退出会议失败 code：" + resData.code + "  " + resData.des);
+                    alert("退出会议失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+        _dom("joinMeeting").onclick = function () {
+            var meetingNo = _val("joinMeeting_meetingNo");
+
+            meetingDevice.joinMeeting(meetingNo, function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice *************SDK调用**********进入会议成功");
+                    alert("进入会议成功");
+
+                } else {
+                    console.error("meetingDevice *************SDK调用**********进入会议失败 code：" + resData.code + "  " + resData.des);
+                    alert("进入会议失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+        _dom("reconnect").onclick = function () {
+            meetingDevice.reconnect(function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice *************SDK调用**********重连成功");
+                    alert("重连成功");
+
+                } else {
+                    console.error("meetingDevice *************SDK调用**********重连失败 code：" + resData.code + "  " + resData.des);
+                    alert("重连失败失败code：" + resData.code + "  " + resData.des);
+                }
+            });
+        };
+
+        _dom("operateDeviceState").onclick = function () {
+            var deviceType = _val("operateDeviceState_deviceType") * 1;
+            var operateType = _val("operateDeviceState_operateType") * 1;
+
+            meetingDevice.operateDeviceState(deviceType, operateType, function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice *************SDK调用**********设备操纵成功");
+                    alert("设备操纵成功");
+
+                } else {
+                    console.error("meetingDevice *************SDK调用**********设备操纵失败 code：" + resData.code + "  " + resData.des);
+                    alert("设备操纵失败code：" + resData.code + "  " + resData.des);
+                }
+            });
+        };
+
+        _dom("startOrStopCloudRecord").onclick = function () {
+            var operateType = _val("startOrStopCloudRecord_operateType") * 1;
+
+            meetingDevice.startOrStopCloudRecord(operateType, function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice *************SDK调用**********开始/结束云端录制成功");
+                    alert("开始/结束云端录制成功");
+
+                } else {
+                    console.error("meetingDevice *************SDK调用**********开始/结束云端录制失败 code：" + resData.code + "  " + resData.des);
+                    alert("开始/结束云端录制失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+        _dom("getVideoSources").onclick = function () {
+            meetingDevice.getVideoSources(function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice *************SDK调用**********枚举信号源成功",resData);
+                    _dom("videoSourcesShow").innerHTML = '枚举信号源列表：<br>'+ resData.data.join('<br>');
+                    alert("枚举信号源成功");
+
+                } else {
+                    console.error("meetingDevice *************SDK调用**********枚举信号源失败 code：" + resData.code + "  " + resData.des);
+                    alert("枚举信号源失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+
+        _dom("changeVideoSource").onclick = function () {
+            var sourceName = _val("sourceName");
+            meetingDevice.changeVideoSource(sourceName, function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice *************SDK调用**********切换信号源成功");
+                    alert("切换信号源成功");
+
+                } else {
+                    console.error("meetingDevice *************SDK调用**********切换信号源失败 code：" + resData.code + "  " + resData.des);
+                    alert("切换信号源失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+        _dom("startPushStream").onclick = function () {
+            meetingDevice.startPushStream(function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice *************SDK调用**********开始推流成功");
+                    alert("开始推流成功");
+
+                } else {
+                    console.error("meetingDevice *************SDK调用**********开始推流失败 code：" + resData.code + "  " + resData.des);
+                    alert("开始推流失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+        _dom("stopPushStream").onclick = function () {
+            meetingDevice.stopPushStream( function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice *************SDK调用**********停止推流成功");
+                    alert("停止推流成功");
+                } else {
+                    console.error("meetingDevice *************SDK调用**********停止推流失败 code：" + resData.code + "  " + resData.des);
+                    alert("停止推流失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+        _dom("release").onclick = function () {
+            meetingDevice.release(function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice *************SDK调用**********SDK释放成功");
+                    alert("SDK释放成功");
+
+                } else {
+                    console.info("meetingDevice *************SDK调用**********SDK释放失败");
+                    alert("SDK释放失败 code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+    </script>
+</div>
+
+<div style="width: 600px; padding: 20px 30px;border: 1px solid #ddd;float: left">
+    <h1>MeetingDeviceSDK（控制设备2）</h1>
+    <h3>SDK初始化</h3>
+    会议主机视训号（八位数字）<input id="init_meetingAccountId2" type="text" class="form-control" style="margin-bottom: 10px;"
+                        placeholder="输入MeetingAccountid" value=""> <br/>
+    验证码（四位数字）<input id="init_verifyCode2" type="text" class="form-control" style="margin-bottom: 10px;"
+                    placeholder="输入verifyCode" value=""><br/>
+    <button id="init2">init</button>
+    <hr/>
+
+    <h3>创建会议 createMeeting</h3>
+    成员列表(11111111,22222222)<input id="createMeeting_nubes2" type="text" class="form-control"
+                                  style="margin-bottom: 10px;" placeholder="输入nubes" value=""><br/>
+    <button id="createMeeting2">createMeeting</button>
+    <hr/>
+
+    <h3>创建预约会议 createOrderMeeting</h3>
+    成员列表(11111111,22222222)<input id="createOrderMeeting_nubes2" type="text" class="form-control"
+                                  style="margin-bottom: 10px;" placeholder="输入nubes" value=""><br/>
+    会议标题<input id="createOrderMeeting_topic2" type="text" class="form-control" style="margin-bottom: 10px;"
+               placeholder="输入topic" value=""><br/>
+    会议开始时间(与1970-1-1相差的秒数（UTC时区）1531336395)<input id="createOrderMeeting_startTime2" type="text" class="form-control"
+                                                  style="margin-bottom: 10px;" placeholder="输入startTime" value=""><br/>
+    会议结束时间(与1970-1-1相差的秒数（UTC时区）1532336395)<input id="createOrderMeeting_endTime2" type="text" class="form-control"
+                                                  style="margin-bottom: 10px;" placeholder="输入endTime" value=""><br/>
+    会议密码（六位数字,可不填）<input id="createOrderMeeting_meetingPWD2" type="text" class="form-control"
+                         style="margin-bottom: 10px;" placeholder="输入meetingPWD" value=""><br/>
+    <button id="createOrderMeeting2">createOrderMeeting</button>
+    <hr/>
+
+
+    <h3>退出当前会议</h3>
+    <button id="exitMeeting2">exitMeeting</button>
+    <hr/>
+
+    <h3>加入会议</h3>
+    会议号（八位数字）<input type="text" id="joinMeeting_meetingNo2" class="form-control" style="margin-bottom: 10px;"
+                    placeholder="输入meetingNo" value="70150097"><br/>
+    <button id="joinMeeting2">joinMeeting</button>
+    <hr/>
+
+    <h3>会议主机丢失后重连</h3>
+    <button id="reconnect2">reconnect</button>
+    <hr/>
+
+    <h3>摄像头/麦克风/扬声器打开关闭控制(摄像头和麦克风 在发言时控制才能有效) operateDeviceState</h3>
+    设备类型 取值如下：1：摄像头 2：麦克风 3：扬声器<input id="operateDeviceState_deviceType2" type="text" class="form-control"
+                                      style="margin-bottom: 10px;" value=""><br/>
+    操作类型1：打开 2：关闭<input id="operateDeviceState_operateType2" type="text" class="form-control"
+                        style="margin-bottom: 10px;" value=""><br/>
+    <button id="operateDeviceState2">operateDeviceState</button>
+    <hr/>
+
+    <h3>开始/结束云端录制 startOrStopCloudRecord</h3>
+    操作类型1：开始 2：结束<input id="startOrStopCloudRecord_operateType2" type="text" class="form-control"
+                        style="margin-bottom: 10px;" value=""><br/>
+    <button id="startOrStopCloudRecord2">startOrStopCloudRecord</button>
+    <hr/>
+    <h3>	枚举信号源 getVideoSources </h3>
+    <button id="getVideoSources2">枚举信号源</button>
+    <div id="videoSourcesShow2"></div>
+    <hr/>
+
+    <h3>切换信号源 changeVideoSource  </h3>
+    信号源名称
+    <input id="sourceName2" type="text" class="form-control"
+           style="margin-bottom: 10px;" value=""><br/>
+    <button id="changeVideoSource2">切换信号源</button>
+    <hr/>
+
+    <h3>开始推流 startPushStream </h3>
+    <button id="startPushStream2">开始推流</button>
+    <hr/>
+
+    <h3>停止推流 stopPushStream </h3>
+    <button id="stopPushStream2">停止推流</button>
+    <hr/>
+
+    <h3>SDK释放</h3>
+    <button id="release2">release</button>
+    <hr/>
+
+    <!--<button class="form-control btn-primary" onclick="pStart()">start</button>-->
+    <script>
+        var meetingDevice2 = MeetingDevice.createInstance();
+
+        function eventCallBack(eventType) {
+            if (eventType == MeetingDevice.EVENT.LOST_MEETING_HOST) {
+                alert("*************回调 事件 会议主机丢失，需要重连*************");
+            }
+            if (eventType == MeetingDevice.EVENT.KICK_OUT_MEETING) {
+                alert("*************回调 事件 被请出会议*************");
+            }
+            if (eventType == MeetingDevice.EVENT.UNBIND_MEETING_HOST) {
+                alert("*************回调 事件 解除绑定，sdk释放*************");
+            }
+            if (eventType == MeetingDevice.EVENT.SERVER_ERROR) {
+                alert("*************回调 事件 服务端被抢占，sdk释放*************");
+            }
+
+        };
+
+        _dom("init2").onclick = function () {
+            var meetingAccountId = _val("init_meetingAccountId2");
+            var verifyCode = _val("init_verifyCode2");
+            meetingDevice2.init(meetingAccountId, function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice2*************SDK调用**********初始化成功");
+                    alert("初始化成功");
+
+                } else {
+                    console.error("meetingDevice2*************SDK调用**********初始化失败 code：" + resData.code + "  " + resData.des);
+                    alert("初始化失败code：" + resData.code + "  " + resData.des);
+
+                }
+
+            }, eventCallBack, verifyCode);
+
+        };
+        _dom("createMeeting2").onclick = function () {
+            var nubes = _val("createMeeting_nubes2");
+            nubes = nubes ? nubes.split(",") : "";
+            meetingDevice2.createMeeting(nubes, function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice2*************SDK调用**********创建会议成功,会议号：" + resData.data);
+                    alert("创建会议成功,会议号：" + resData.data);
+
+                } else {
+                    console.error("meetingDevice2*************SDK调用**********创建会议失败 code：" + resData.code + "  " + resData.des);
+                    alert("创建会议失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+        _dom("createOrderMeeting2").onclick = function () {
+            var nubes = _val("createOrderMeeting_nubes2");
+            nubes = nubes ? nubes.split(",") : "";
+            var topic = _val("createOrderMeeting_topic2");
+            var startTime = _val("createOrderMeeting_startTime2");
+            var endTime = _val("createOrderMeeting_endTime2");
+            var meetingPWD = _val("createOrderMeeting_meetingPWD2");
+            meetingPWD = meetingPWD ? meetingPWD : null;
+
+            meetingDevice2.createOrderMeeting(nubes, topic, startTime, endTime, function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice2*************SDK调用**********创建会议成功,会议号：" + resData.data);
+                    alert("创建会议成功,会议号：" + resData.data);
+
+                } else {
+                    console.error("meetingDevice2*************SDK调用**********创建会议失败 code：" + resData.code + "  " + resData.des);
+                    alert("创建会议失败code：" + resData.code + "  " + resData.des);
+
+                }
+            }, meetingPWD);
+        };
+
+
+        _dom("exitMeeting2").onclick = function () {
+            meetingDevice2.exitMeeting(function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice2*************SDK调用**********退出会议成功");
+                    alert("退出会议成功");
+
+                } else {
+                    console.error("meetingDevice2*************SDK调用**********退出会议失败 code：" + resData.code + "  " + resData.des);
+                    alert("退出会议失败code：" + resData.code + "  " + resData.des);
+                }
+
+            });
+        };
+
+        _dom("joinMeeting2").onclick = function () {
+            var meetingNo = _val("joinMeeting_meetingNo2");
+            meetingDevice2.joinMeeting(meetingNo, function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice2*************SDK调用**********进入会议成功");
+                    alert("进入会议成功");
+                } else {
+                    console.error("meetingDevice2*************SDK调用**********进入会议失败 code：" + resData.code + "  " + resData.des);
+                    alert("进入会议失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+        _dom("reconnect2").onclick = function () {
+            meetingDevice2.reconnect(function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice2*************SDK调用**********重连成功");
+                    alert("重连成功");
+
+                } else {
+                    console.error("meetingDevice2*************SDK调用**********重连失败 code：" + resData.code + "  " + resData.des);
+                    alert("重连失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+        _dom("operateDeviceState2").onclick = function () {
+            var deviceType = _val("operateDeviceState_deviceType2") * 1;
+            var operateType = _val("operateDeviceState_operateType2") * 1;
+
+            meetingDevice2.operateDeviceState(deviceType, operateType, function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice2*************SDK调用**********设备操纵成功");
+                    alert("设备操纵成功");
+
+                } else {
+                    console.error("meetingDevice2*************SDK调用**********设备操纵失败 code：" + resData.code + "  " + resData.des);
+                    alert("设备操纵失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+        _dom("startOrStopCloudRecord2").onclick = function () {
+            var operateType = _val("startOrStopCloudRecord_operateType2") * 1;
+
+            meetingDevice2.startOrStopCloudRecord(operateType, function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice2*************SDK调用**********开始/结束云端录制成功");
+                    alert("开始/结束云端录制成功");
+
+                } else {
+                    console.error("meetingDevice2*************SDK调用**********开始/结束云端录制失败 code：" + resData.code + "  " + resData.des);
+                    alert("开始/结束云端录制失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+
+        _dom("getVideoSources2").onclick = function () {
+            meetingDevice2.getVideoSources(function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice2 *************SDK调用**********枚举信号源成功",resData);
+                    _dom("videoSourcesShow2").innerHTML = '枚举信号源列表：<br>'+ resData.data.join('<br>');
+                    alert("枚举信号源成功");
+
+                } else {
+                    console.error("meetingDevice2 *************SDK调用**********枚举信号源失败 code：" + resData.code + "  " + resData.des);
+                    alert("枚举信号源失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+
+        _dom("changeVideoSource2").onclick = function () {
+            var sourceName = _val("sourceName2");
+            meetingDevice2.changeVideoSource(sourceName, function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice2 *************SDK调用**********切换信号源成功");
+                    alert("切换信号源成功");
+                } else {
+                    console.error("meetingDevice2 *************SDK调用**********切换信号源失败 code：" + resData.code + "  " + resData.des);
+                    alert("切换信号源失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+        _dom("startPushStream2").onclick = function () {
+            meetingDevice2.startPushStream(function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice2 *************SDK调用**********开始推流成功");
+                    alert("开始推流成功");
+
+                } else {
+                    console.error("meetingDevice2 *************SDK调用**********开始推流失败 code：" + resData.code + "  " + resData.des);
+                    alert("开始推流失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+        _dom("stopPushStream2").onclick = function () {
+            meetingDevice2.stopPushStream( function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice2 *************SDK调用**********停止推流成功");
+                    alert("停止推流成功");
+
+                } else {
+                    console.error("meetingDevice2 *************SDK调用**********停止推流失败 code：" + resData.code + "  " + resData.des);
+                    alert("停止推流失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+        _dom("release2").onclick = function () {
+            meetingDevice2.release(function (resData) {
+                if (resData.code == 0) {
+                    console.info("meetingDevice2*************SDK调用**********SDK释放成功");
+                    alert("SDK释放成功");
+
+                } else {
+                    console.info("meetingDevice2*************SDK调用**********SDK释放失败");
+                    alert("SDK释放失败code：" + resData.code + "  " + resData.des);
+
+                }
+            });
+        };
+
+    </script>
+</div>
+
+<!--<div style="width: 400px; padding: 20px 30px;">-->
+<!--<button class="form-control btn-primary" onclick="pStop()">stop</button>-->
+<!--</div>-->
+
+
+<!--&lt;!&ndash;&lt;!&ndash;显示结果部分&ndash;&gt;&ndash;&gt;-->
+<!--<div class="resultBox" id="resultBox">-->
+
+
+<!--</div>-->
+<!--<button class="form-control btn-primary" style="right:20px; width: 140px ;position: absolute; top:550px " onclick="clearLog()">清除日志</button>-->
+
+
+</body>
+</html>
